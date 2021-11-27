@@ -39,7 +39,7 @@ def crawl_data(driver, page_threshold=2, country_name_list=None):
         # Click on each link
         while page_count <= page_threshold:
             ad_counter = 1  # To avoid adplaceholder
-            for i in range(2, 38):
+            for i in range(2, 39):
                 if ad_counter == 5:
                     ad_counter = 1
                     continue
@@ -55,17 +55,18 @@ def crawl_data(driver, page_threshold=2, country_name_list=None):
                                                                                 '2]/header/div/div/a[1]').click()
                     driver.switch_to.window(driver.window_handles[-1])
                     sleep(3)
-                    get_review(driver, 30, country_name)
+                    # get_review(driver, 30, country_name)
                     # driver.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.COMMAND + "w")
                     driver.close()
                     driver.switch_to.window(driver.window_handles[-1])
                     sleep(1)
 
             # click on next page
-
+            # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[39]/span/div[1]/div/div[1]/div[2]/div/a
             driver.find_element(By.XPATH,
                                 '//*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[39]/span/div[1]/div/div[1]/div[2]/div/a').click()
-            driver.implicitly_wait(5)
+            # driver.implicitly_wait(10)
+            sleep(5)
             page_count += 1
 
 
