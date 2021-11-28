@@ -15,14 +15,16 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import argparse
 
-def crawl_data(driver, page_threshold=2, country_name_list=None):
+
+def crawl_data(driver, page_threshold=2, country_name_list=None, need_first=True):
     # page_threshold = 2
     if country_name_list is None:
         country_name_list = []
     page_count = 1
     for country_name in country_name_list:
         # Find the city
-        write_to_csv(country_name+"_data.csv", "country_name", "place_name", "review_header", "review", "written_date")
+        if need_first:
+            write_to_csv(country_name+"_data.csv", "country_name", "place_name", "review_header", "review", "written_date")
         driver.find_element(By.XPATH, '//*[@id="component_1"]/div/div/form/input[1]').send_keys(country_name)
         sleep(0.5)
         driver.find_element(By.XPATH, '//*[@id="component_1"]/div/div/form/input[1]').send_keys(Keys.ARROW_DOWN)
@@ -37,7 +39,17 @@ def crawl_data(driver, page_threshold=2, country_name_list=None):
         driver.switch_to.window(driver.window_handles[-1])
         sleep(1)
         # Click on each link
+
         while page_count <= page_threshold:
+            if not need_first:
+                driver.find_element(By.XPATH,
+                                    '//*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[39]/span/div[1]/div/div[1]/div[2]/div/a').click()
+                # driver.implicitly_wait(10)
+                sleep(5)
+                page_count += 1
+                need_first = True
+                continue
+
             ad_counter = 1  # To avoid adplaceholder
             for i in range(2, 39):
                 if ad_counter == 5:
@@ -55,7 +67,7 @@ def crawl_data(driver, page_threshold=2, country_name_list=None):
                                                                                 '2]/header/div/div/a[1]').click()
                     driver.switch_to.window(driver.window_handles[-1])
                     sleep(3)
-                    # get_review(driver, 30, country_name)
+                    get_review(driver, 30, country_name)
                     # driver.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.COMMAND + "w")
                     driver.close()
                     driver.switch_to.window(driver.window_handles[-1])
@@ -119,6 +131,7 @@ def get_review(driver, page_threshold=2, country=""):
             next_button.click()
             page_counter += 1
             driver.implicitly_wait(4)
+            # sleep(2)
         except:
             break
 
@@ -145,5 +158,10 @@ country_list = [args.country]
 
 driver.get('https://www.tripadvisor.com/Attractions')
 driver.implicitly_wait(3)
-crawl_data(driver, 50, country_list)
+crawl_data(driver, 50, country_list, False)
+
+# # Temporary section, comment if not use
+# driver.get('https://www.tripadvisor.com/Attraction_Review-g1165976-d1368644-Reviews-Lake_Kawaguchiko-Fujikawaguchiko_machi_Minamitsuru_gun_Yamanashi_Prefecture_Kosh.html')
+# driver.implicitly_wait(3)
+# get_review(driver, 30, "Japan")
 
