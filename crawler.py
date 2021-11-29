@@ -50,31 +50,35 @@ def crawl_data(driver, page_threshold=2, country_name_list=None, start_from=0, f
                 start_from -=1
                 continue
 
-            ad_counter = 1  # To avoid adplaceholder
+            # ad_counter = 1  # To avoid adplaceholder
 
-            start_second_page = 1
+            start_att_counter = 1
             for i in range(2, 39):
-
+                # Adplace holder
+                # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[6]
+                # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[11]
+                # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[16]
+                # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[21]
+                # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[26]
+                # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[31]
+                # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[36]
                 if from_attractions >0:
-                    ad_counter += 1
-                    start_second_page +=1
-                    if start_second_page < from_attractions:
+                    start_att_counter +=1
+                    if start_att_counter < from_attractions:
                         # print(start_second_page)
                         continue
                     else:
-                        start_second_page = 1
+                        start_att_counter = 1
                         # ad_counter = 5
                         from_attractions = 0
 
-                if ad_counter == 5:
-                    ad_counter = 1
+                if i in [6,11,16,21,26,31,36]:
                     continue
                 # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[38]
                 # tabs = driver.window_handles
                 # print(len(tabs))
                 # //*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[3]/div/span/div/article/div[2]/header/div/div/a[1]
                 else:
-                    ad_counter += 1
                     driver.find_element(By.XPATH,
                                         '//*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div['
                                         '2]/div[2]/div/div/section[' + str(i) + ']/div/span/div/article/div['
@@ -175,6 +179,18 @@ country_list = [args.country]
 driver.get('https://www.tripadvisor.com/Attractions')
 driver.implicitly_wait(3)
 crawl_data(driver, 50, country_list, 4, 12)
+# crawl data parameters:
+# driver => don't change
+# 50: number of pages of attractions to crawl
+# country_list => don't change
+# 4: start page: if you want to start crawling from page k, enter k-1
+# 12: the index of the first attraction on page k to crawl: the rules are as follow:
+# - 30 attractions/page
+# - The first attractions start at 2
+# - [6,11,16,21,26,31,36] is the index of ad holder
+# - each time the index of attraction pass these index, add 1 to the index.
+# Ex: attraction no 5 on the website -> 7 (start from 2, +1 for adholder)
+# attraction no. 22 on the website -> 28 (start from 2, add 5 to for adholder)
 
 # # Temporary section, comment if not use
 # driver.get('https://www.tripadvisor.com/Attraction_Review-g1165976-d1368644-Reviews-Lake_Kawaguchiko-Fujikawaguchiko_machi_Minamitsuru_gun_Yamanashi_Prefecture_Kosh.html')
