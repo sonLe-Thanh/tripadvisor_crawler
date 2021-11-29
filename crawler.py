@@ -16,14 +16,14 @@ from selenium.webdriver.support import expected_conditions as EC
 import argparse
 
 
-def crawl_data(driver, page_threshold=2, country_name_list=None, need_first=True):
+def crawl_data(driver, page_threshold=2, country_name_list=None, start_from=0, from_attractions=0):
     # page_threshold = 2
     if country_name_list is None:
         country_name_list = []
     page_count = 1
     for country_name in country_name_list:
         # Find the city
-        if need_first:
+        if start_from == 0:
             write_to_csv(country_name+"_data.csv", "country_name", "place_name", "review_header", "review", "written_date")
         driver.find_element(By.XPATH, '//*[@id="component_1"]/div/div/form/input[1]').send_keys(country_name)
         sleep(0.5)
@@ -41,17 +41,31 @@ def crawl_data(driver, page_threshold=2, country_name_list=None, need_first=True
         # Click on each link
 
         while page_count <= page_threshold:
-            if not need_first:
+            if start_from>0:
                 driver.find_element(By.XPATH,
                                     '//*[@id="lithium-root"]/main/span/div/div[3]/div/div/div/span/div/div[2]/div[2]/div/div/section[39]/span/div[1]/div/div[1]/div[2]/div/a').click()
                 # driver.implicitly_wait(10)
                 sleep(5)
                 page_count += 1
-                need_first = True
+                start_from -=1
                 continue
 
             ad_counter = 1  # To avoid adplaceholder
+
+            start_second_page = 1
             for i in range(2, 39):
+
+                if from_attractions >0:
+                    ad_counter += 1
+                    start_second_page +=1
+                    if start_second_page < from_attractions:
+                        # print(start_second_page)
+                        continue
+                    else:
+                        start_second_page = 1
+                        # ad_counter = 5
+                        from_attractions = 0
+
                 if ad_counter == 5:
                     ad_counter = 1
                     continue
@@ -96,6 +110,8 @@ def get_review(driver, page_threshold=2, country=""):
 
     file_name = country + "_data.csv"
     # print(name_place, region_place)
+    written =""
+    review = ""
     while page_counter <= page_threshold:
         # Get the reviews in one page
         for i in range(1, 11):
@@ -158,10 +174,13 @@ country_list = [args.country]
 
 driver.get('https://www.tripadvisor.com/Attractions')
 driver.implicitly_wait(3)
-crawl_data(driver, 50, country_list, False)
+crawl_data(driver, 50, country_list, 4, 12)
 
 # # Temporary section, comment if not use
 # driver.get('https://www.tripadvisor.com/Attraction_Review-g1165976-d1368644-Reviews-Lake_Kawaguchiko-Fujikawaguchiko_machi_Minamitsuru_gun_Yamanashi_Prefecture_Kosh.html')
 # driver.implicitly_wait(3)
 # get_review(driver, 30, "Japan")
 
+# France - page 5, gotten to 128
+# Japan - page 7, gotten to 188
+# Germary - page 6, gotten to 153
